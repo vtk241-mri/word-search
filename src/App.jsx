@@ -1,49 +1,76 @@
-import { useState } from "react";
+// src/App.jsx
+import React from "react";
 import Header from "./components/Header";
-import { generateMockBoard } from "./utils/boardUtils";
+import StartPage from "./pages/StartPage";
 import GamePage from "./pages/GamePage";
 import ResultsPage from "./pages/ResultsPage";
-import StartPage from "./pages/StartPage";
+import { useGame } from "./hooks/useGame";
+
+const DEFAULT_WORDS = ["APPLE", "BIRD", "TREE", "BOOK"];
 
 export default function App() {
-  const [page, setPage] = useState("start");
-  const [board] = useState(() => generateMockBoard(5));
-  const [wordsToFind] = useState(["APPLE", "BIRD", "TREE", "BOOK"]);
-  const [results, setResults] = useState(null);
+  const [page, setPage] = React.useState("start");
+  const words = React.useMemo(() => DEFAULT_WORDS, []);
 
-  function startGame() {
-    setResults(null);
+  const {
+    grid,
+    placedWords,
+    placedWordsMeta,
+    foundWords,
+    foundWordsMeta,
+    foundPositionsSet,
+    init,
+    resetGame,
+    checkSelection,
+    isGameOver,
+  } = useGame({ words, size: 5 });
+
+  React.useEffect(() => {
+    if (isGameOver) setPage("results");
+  }, [isGameOver]);
+
+  const startGame = () => {
+    init();
     setPage("game");
-  }
+  };
 
-  function finishGame() {
-    setResults({
-      score: 42,
-      found: ["APPLE", "BOOK"],
-      missed: ["BIRD", "TREE"],
-    });
-  }
-  function playAgain() {
+  const finish = () => setPage("results");
+  const playAgain = () => {
+    resetGame();
     setPage("start");
-  }
+  };
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div>
       <Header onNavigate={setPage} page={page} />
 
-      <main className="flex-1">
+      <div>
         {page === "start" && <StartPage onStart={startGame} />}
         {page === "game" && (
-          <GamePage board={board} words={wordsToFind} onFinish={finishGame} />
+          <GamePage
+            grid={grid}
+            placedWords={placedWords}
+            foundWords={foundWords}
+            foundWordsMeta={foundWordsMeta}
+            foundPositionsSet={foundPositionsSet}
+            checkSelection={checkSelection}
+            onFinish={finish}
+          />
         )}
         {page === "results" && (
-          <ResultsPage results={results} onPlayAgain={playAgain} />
+          <ResultsPage
+            results={{
+              score: foundWords.length,
+              found: foundWords,
+              missed: placedWords.filter((w) => !foundWords.includes(w)),
+            }}
+            onPlayAgain={playAgain}
+          />
         )}
-      </main>
+      </div>
 
-      <footer className="p-4 text-center text-sm text-gray-500 border-t">
-        Каркас гри — без бізнес-логіки. Далі реалізуємо виділення клітин і
-        перевірку слів.
+      <footer style={{ textAlign: "center", marginTop: 20, color: "#6b7280" }}>
+        Made with ❤️ — Word Search (5×5)
       </footer>
     </div>
   );

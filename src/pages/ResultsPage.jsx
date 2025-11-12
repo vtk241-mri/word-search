@@ -1,40 +1,52 @@
-export default function ResultsPage({ results, onPlayAgain }) {
-  const { score = 0, found = [], missed = [] } = results || {};
+// src/pages/ResultsPage.jsx
+import React from "react";
 
+export default function ResultsPage({
+  results = { score: 0, found: [], missed: [] },
+  onPlayAgain,
+}) {
+  const { score, found, missed } = results;
   return (
-    <section className="p-8 max-w-3xl mx-auto text-center">
-      <h2 className="text-2xl font-bold mb-4">Результати</h2>
-      <p>
-        Ваш рахунок: <strong>{score}</strong>
-      </p>
-      <p>Знайдені слова: {found.length}</p>
-      <p>Пропущені слова: {missed.length}</p>
+    <main className="container">
+      <div className="card" style={{ textAlign: "center" }}>
+        <h2 style={{ marginTop: 0 }}>Результати</h2>
+        <p className="small-muted">
+          Знайдено слів: <span className="kv">{found.length}</span> /{" "}
+          <span className="kv">{found.length + missed.length}</span>
+        </p>
 
-      <div className="grid grid-cols-2 gap-4 mt-6 text-left">
-        <div className="border p-4 rounded bg-white">
-          <h3 className="font-semibold mb-2">Знайдені</h3>
-          <ul className="text-sm space-y-1">
-            {found.map((w, i) => (
-              <li key={i}>• {w}</li>
-            ))}
-          </ul>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            gap: 12,
+            margin: 12,
+          }}
+        >
+          <button onClick={onPlayAgain} className="btn primary">
+            Грати знову
+          </button>
         </div>
-        <div className="border p-4 rounded bg-white">
-          <h3 className="font-semibold mb-2">Пропущені</h3>
-          <ul className="text-sm space-y-1">
-            {missed.map((w, i) => (
-              <li key={i}>• {w}</li>
-            ))}
-          </ul>
+
+        <div className="results-grid">
+          <div className="results-card">
+            <h4 style={{ marginTop: 0 }}>Знайдені</h4>
+            <ul>
+              {found.map((w) => (
+                <li key={w}>{w}</li>
+              ))}
+            </ul>
+          </div>
+          <div className="results-card">
+            <h4 style={{ marginTop: 0 }}>Пропущені</h4>
+            <ul>
+              {missed.map((w) => (
+                <li key={w}>• {w}</li>
+              ))}
+            </ul>
+          </div>
         </div>
       </div>
-
-      <button
-        className="mt-6 px-6 py-2 bg-blue-600 text-white rounded hover:opacity-90"
-        onClick={onPlayAgain}
-      >
-        Грати знову
-      </button>
-    </section>
+    </main>
   );
 }

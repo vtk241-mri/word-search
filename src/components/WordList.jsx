@@ -1,14 +1,21 @@
-export default function WordList({ words }) {
+// src/components/WordList.jsx
+import React from "react";
+
+export default function WordList({ words = [], foundWords = [] }) {
   return (
-    <aside className="p-4 border rounded bg-white shadow-sm">
-      <h3 className="font-semibold mb-2">Слова для пошуку</h3>
-      <ul className="space-y-1">
-        {words.map((w, idx) => (
-          <li key={idx} className="text-sm">
-            • {w}
-          </li>
-        ))}
-      </ul>
-    </aside>
+    <div className="card">
+      <h3 style={{ margin: 0, marginBottom: 10 }}>Слова</h3>
+      <div className="wordlist">
+        {words.map((w) => {
+          const found = foundWords.includes(w);
+          return (
+            <div key={w} className={`word-item ${found ? "found" : ""}`}>
+              <span>{w}</span>
+              <span className="status">{found ? "Знайдено" : "Чекає"}</span>
+            </div>
+          );
+        })}
+      </div>
+    </div>
   );
 }
