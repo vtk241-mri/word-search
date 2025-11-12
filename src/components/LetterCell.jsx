@@ -1,4 +1,3 @@
-// src/components/LetterCell.jsx
 import React from "react";
 
 export default function LetterCell({

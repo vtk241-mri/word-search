@@ -1,34 +1,108 @@
-// src/hooks/useGame.js
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { generateBoard } from "../utils/boardUtils";
 
-export function useGame({
-  words = ["APPLE", "BIRD", "TREE", "BOOK"],
-  size = 5,
-} = {}) {
+export function useGame({ words = [], size = 5, timerSeconds = 0 } = {}) {
   const [grid, setGrid] = useState([]);
   const [placedWordsMeta, setPlacedWordsMeta] = useState([]);
   const [foundWordsMeta, setFoundWordsMeta] = useState([]);
   const [startedAt, setStartedAt] = useState(null);
+  const [endedAt, setEndedAt] = useState(null);
   const [isGameOver, setIsGameOver] = useState(false);
+
+  const [remainingTime, setRemainingTime] = useState(timerSeconds);
+  const [timerRunning, setTimerRunning] = useState(timerSeconds > 0);
+
+  const optionsRef = useRef({
+    words,
+    size,
+    timerSeconds,
+    directions: undefined,
+    maxWordLength: undefined,
+  });
+  const timerRef = useRef(null);
+
+  const clearTimer = useCallback(() => {
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+      timerRef.current = null;
+    }
+  }, []);
 
   const init = useCallback(
     (opts = {}) => {
-      const s = opts.size || size;
-      const w = (opts.words || words).map((x) => x.toUpperCase());
-      const { grid: g, placedWords } = generateBoard(s, w);
+      const currentWords = (
+        opts.words ??
+        optionsRef.current.words ??
+        words
+      ).map((w) => String(w).toUpperCase());
+      const currentSize = opts.size ?? optionsRef.current.size ?? size;
+      const directions = opts.directions ?? optionsRef.current.directions;
+      const maxWordLength =
+        opts.maxWordLength ?? optionsRef.current.maxWordLength;
+      const t =
+        typeof opts.timerSeconds === "number"
+          ? opts.timerSeconds
+          : optionsRef.current.timerSeconds ?? timerSeconds;
+
+      optionsRef.current = {
+        words: currentWords,
+        size: currentSize,
+        timerSeconds: t,
+        directions,
+        maxWordLength,
+      };
+
+      clearTimer();
+
+      const { grid: g, placedWords } = generateBoard(
+        currentSize,
+        currentWords,
+        {
+          directions,
+          maxWordLength,
+        }
+      );
+
       setGrid(g);
       setPlacedWordsMeta(placedWords);
       setFoundWordsMeta([]);
       setStartedAt(Date.now());
+      setEndedAt(null);
       setIsGameOver(false);
+
+      setRemainingTime(t);
+      setTimerRunning(Boolean(t && t > 0));
     },
-    [size, words]
+    [words, size, timerSeconds, clearTimer]
   );
 
   useEffect(() => {
-    init();
-  }, [init]);
+    return () => {
+      clearTimer();
+    };
+  }, [clearTimer]);
+
+  useEffect(() => {
+    clearTimer();
+    if (!timerRunning || remainingTime <= 0) return;
+
+    timerRef.current = setInterval(() => {
+      setRemainingTime((prev) => {
+        if (prev <= 1) {
+          clearTimer();
+          setTimerRunning(false);
+          setIsGameOver(true);
+          setEndedAt(Date.now());
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => {
+      clearTimer();
+    };
+  }, [timerRunning, clearTimer]);
 
   useEffect(() => {
     if (
@@ -36,8 +110,11 @@ export function useGame({
       foundWordsMeta.length === placedWordsMeta.length
     ) {
       setIsGameOver(true);
+      setEndedAt(Date.now());
+      setTimerRunning(false);
+      clearTimer();
     }
-  }, [foundWordsMeta, placedWordsMeta]);
+  }, [placedWordsMeta, foundWordsMeta, clearTimer]);
 
   const foundPositionsSet = useMemo(() => {
     const s = new Set();
@@ -49,12 +126,12 @@ export function useGame({
 
   const checkSelection = useCallback(
     (cells) => {
-      if (!cells || cells.length === 0) return null;
+      if (!cells || !cells.length) return null;
       const selPos = cells.map((c) => `${c.row},${c.col}`);
       for (const placed of placedWordsMeta) {
         const pos = placed.positions.map((p) => `${p.row},${p.col}`);
-        const posRev = [...pos].reverse();
         if (pos.length !== selPos.length) continue;
+        const posRev = [...pos].reverse();
         const forward = pos.join("|") === selPos.join("|");
         const reverse = posRev.join("|") === selPos.join("|");
         if (
@@ -70,10 +147,27 @@ export function useGame({
     [placedWordsMeta, foundWordsMeta]
   );
 
-  const resetGame = useCallback(
-    () => init({ words, size }),
-    [init, words, size]
-  );
+  const resetGame = useCallback(() => {
+    const opts = optionsRef.current || { words, size, timerSeconds };
+    init({
+      words: opts.words,
+      size: opts.size,
+      directions: opts.directions,
+      maxWordLength: opts.maxWordLength,
+      timerSeconds: opts.timerSeconds,
+    });
+  }, [init, words, size, timerSeconds]);
+
+  const stopTimer = useCallback(() => {
+    setTimerRunning(false);
+    clearTimer();
+  }, [clearTimer]);
+
+  const elapsedTime = useMemo(() => {
+    if (!startedAt) return 0;
+    const end = endedAt ?? Date.now();
+    return Math.max(0, Math.round((end - startedAt) / 1000));
+  }, [startedAt, endedAt]);
 
   return {
     grid,
@@ -83,9 +177,14 @@ export function useGame({
     foundWordsMeta,
     foundPositionsSet,
     startedAt,
+    endedAt,
+    elapsedTime,
     isGameOver,
+    remainingTime,
+    timerRunning,
     init,
     resetGame,
     checkSelection,
+    stopTimer,
   };
 }

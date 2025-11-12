@@ -1,4 +1,3 @@
-// src/components/Grid.jsx
 import React from "react";
 import LetterCell from "./LetterCell";
 

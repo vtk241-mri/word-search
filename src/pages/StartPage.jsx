@@ -1,4 +1,3 @@
-// src/pages/StartPage.jsx
 import React from "react";
 
 export default function StartPage({ onStart }) {

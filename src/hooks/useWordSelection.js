@@ -1,4 +1,3 @@
-// src/hooks/useWordSelection.js
 import { useCallback, useState } from "react";
 
 const normalize = (v) => (v === 0 ? 0 : v > 0 ? 1 : -1);

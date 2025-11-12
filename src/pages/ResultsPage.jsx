@@ -1,4 +1,3 @@
-// src/pages/ResultsPage.jsx
 import React from "react";
 
 export default function ResultsPage({
@@ -41,7 +40,7 @@ export default function ResultsPage({
             <h4 style={{ marginTop: 0 }}>Пропущені</h4>
             <ul>
               {missed.map((w) => (
-                <li key={w}>• {w}</li>
+                <li key={w}>{w}</li>
               ))}
             </ul>
           </div>

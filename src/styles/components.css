@@ -1,0 +1,93 @@
+/* board */
+.board-wrap {
+  padding: 18px;
+  border-radius: 12px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.9), #fff);
+}
+.board {
+  display: grid;
+  gap: 10px;
+}
+.cell-button {
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  width: 68px;
+  height: 68px;
+  border-radius: 10px;
+}
+.cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 20px;
+  background: linear-gradient(180deg, #fff, #fbfdff);
+  border-radius: 10px;
+  box-shadow: 0 6px 18px rgba(2, 6, 23, 0.04);
+}
+.cell:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 24px rgba(2, 6, 23, 0.06);
+}
+.cell.selected {
+  background: linear-gradient(135deg, #7c3aed, #06b6d4);
+  color: white;
+  transform: scale(1.04);
+  box-shadow: 0 14px 28px rgba(6, 182, 212, 0.14);
+}
+.cell.found {
+  background: linear-gradient(135deg, #10b981, #06b6a4);
+  color: white;
+  transform: scale(1.05);
+}
+
+/* wordlist */
+.wordlist {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.word-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  border-radius: 10px;
+  background: #fbfbff;
+  border: 1px solid rgba(2, 6, 23, 0.03);
+  font-weight: 700;
+}
+.word-item.found {
+  background: linear-gradient(
+    90deg,
+    rgba(16, 185, 129, 0.08),
+    rgba(6, 166, 150, 0.04)
+  );
+  color: #065f46;
+  border: 1px solid rgba(6, 166, 150, 0.08);
+}
+
+/* form */
+.form-row {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+.form-label {
+  font-weight: 600;
+  font-size: 13px;
+  color: var(--muted);
+}
+.form-input {
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid rgba(2, 6, 23, 0.06);
+}
+.form-error {
+  color: #b91c1c;
+  font-size: 12px;
+  min-height: 16px;
+}

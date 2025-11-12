@@ -1,6 +1,5 @@
-// src/utils/boardUtils.js
 const ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-const DIRECTIONS = [
+const DEFAULT_DIRECTIONS = [
   [0, 1],
   [0, -1],
   [1, 0],
@@ -29,11 +28,11 @@ function canPlace(grid, word, r, c, dr, dc) {
   return true;
 }
 
-function placeWord(grid, word) {
+function placeWord(grid, word, directions) {
   const n = grid.length;
-  const tries = 300;
+  const tries = 400;
   for (let t = 0; t < tries; t++) {
-    const [dr, dc] = DIRECTIONS[rand(DIRECTIONS.length)];
+    const [dr, dc] = directions[rand(directions.length)];
     const r = rand(n);
     const c = rand(n);
     const endR = r + dr * (word.length - 1);
@@ -62,13 +61,18 @@ function fillRandom(grid) {
   }
 }
 
-export function generateBoard(size = 5, words = []) {
+export function generateBoard(size = 5, words = [], options = {}) {
+  const directions = options.directions ?? DEFAULT_DIRECTIONS;
+  const maxWordLength = options.maxWordLength ?? size + 2;
+
+  const filtered = words.filter((w) => w.length <= maxWordLength);
+  const sorted = [...filtered].sort((a, b) => b.length - a.length);
+
   const grid = createEmpty(size);
   const placedWords = [];
-  const sorted = [...words].sort((a, b) => b.length - a.length);
   for (const w of sorted) {
     const up = w.toUpperCase();
-    const positions = placeWord(grid, up);
+    const positions = placeWord(grid, up, directions);
     if (positions) placedWords.push({ word: up, positions });
   }
   fillRandom(grid);

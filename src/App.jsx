@@ -1,16 +1,32 @@
-// src/App.jsx
 import React from "react";
 import Header from "./components/Header";
 import StartPage from "./pages/StartPage";
 import GamePage from "./pages/GamePage";
 import ResultsPage from "./pages/ResultsPage";
+import Modal from "./components/Modal";
+import SettingsForm from "./components/SettingsForm";
+import GameEndModal from "./components/GameEndModal";
+import { SettingsProvider, useSettings } from "./context/SettingsContext";
+import { WORD_POOL } from "./data/wordPool";
 import { useGame } from "./hooks/useGame";
+import { deriveGameOptions } from "./utils/deriveGameOptions";
 
-const DEFAULT_WORDS = ["APPLE", "BIRD", "TREE", "BOOK"];
-
-export default function App() {
+function AppInner() {
   const [page, setPage] = React.useState("start");
-  const words = React.useMemo(() => DEFAULT_WORDS, []);
+  const { settings } = useSettings();
+  const [settingsOpen, setSettingsOpen] = React.useState(false);
+  const [endModalOpen, setEndModalOpen] = React.useState(false);
+
+  const gameOpts = React.useMemo(() => deriveGameOptions(settings), [settings]);
+
+  const words = React.useMemo(() => {
+    const pool = [...WORD_POOL];
+    for (let i = pool.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [pool[i], pool[j]] = [pool[j], pool[i]];
+    }
+    return pool.slice(0, Math.max(1, settings.wordsCount || 4));
+  }, [settings.wordsCount]);
 
   const {
     grid,
@@ -23,38 +39,98 @@ export default function App() {
     resetGame,
     checkSelection,
     isGameOver,
-  } = useGame({ words, size: 5 });
+    remainingTime,
+    timerRunning,
+    elapsedTime,
+  } = useGame({
+    words,
+    size: gameOpts.size,
+    timerSeconds: gameOpts.timerSeconds,
+  });
 
   React.useEffect(() => {
-    if (isGameOver) setPage("results");
+    if (page === "game") {
+      init({
+        words,
+        size: gameOpts.size,
+        directions: gameOpts.directions,
+        maxWordLength: gameOpts.maxWordLength,
+        timerSeconds: gameOpts.timerSeconds,
+      });
+    }
+  }, [
+    gameOpts.size,
+    gameOpts.directions,
+    gameOpts.maxWordLength,
+    gameOpts.timerSeconds,
+    words,
+    page,
+    init,
+  ]);
+
+  React.useEffect(() => {
+    if (isGameOver) {
+      setEndModalOpen(true);
+      setPage("results");
+    }
   }, [isGameOver]);
 
   const startGame = () => {
-    init();
+    init({
+      words,
+      size: gameOpts.size,
+      directions: gameOpts.directions,
+      maxWordLength: gameOpts.maxWordLength,
+      timerSeconds: gameOpts.timerSeconds,
+    });
     setPage("game");
   };
 
-  const finish = () => setPage("results");
-  const playAgain = () => {
-    resetGame();
-    setPage("start");
+  const handlePlayAgain = () => {
+    init({
+      words,
+      size: gameOpts.size,
+      directions: gameOpts.directions,
+      maxWordLength: gameOpts.maxWordLength,
+      timerSeconds: gameOpts.timerSeconds,
+    });
+    setEndModalOpen(false);
+    setPage("game");
+  };
+
+  const handleNext = () => {
+    init({
+      words,
+      size: gameOpts.size,
+      directions: gameOpts.directions,
+      maxWordLength: gameOpts.maxWordLength,
+      timerSeconds: gameOpts.timerSeconds,
+    });
+    setEndModalOpen(false);
+    setPage("game");
   };
 
   return (
-    <div>
-      <Header onNavigate={setPage} page={page} />
-
-      <div>
+    <>
+      <Header
+        onNavigate={setPage}
+        page={page}
+        onOpenSettings={() => setSettingsOpen(true)}
+      />
+      <div className="container">
         {page === "start" && <StartPage onStart={startGame} />}
         {page === "game" && (
           <GamePage
             grid={grid}
             placedWords={placedWords}
+            placedWordsMeta={placedWordsMeta}
             foundWords={foundWords}
             foundWordsMeta={foundWordsMeta}
             foundPositionsSet={foundPositionsSet}
             checkSelection={checkSelection}
-            onFinish={finish}
+            onFinish={() => setPage("results")}
+            remainingTime={remainingTime}
+            timerRunning={timerRunning}
           />
         )}
         {page === "results" && (
@@ -64,14 +140,43 @@ export default function App() {
               found: foundWords,
               missed: placedWords.filter((w) => !foundWords.includes(w)),
             }}
-            onPlayAgain={playAgain}
+            onPlayAgain={() => {
+              init({
+                words,
+                size: gameOpts.size,
+                directions: gameOpts.directions,
+                maxWordLength: gameOpts.maxWordLength,
+                timerSeconds: gameOpts.timerSeconds,
+              });
+              setPage("start");
+            }}
           />
         )}
       </div>
+      {settingsOpen && (
+        <Modal onClose={() => setSettingsOpen(false)}>
+          <SettingsForm onClose={() => setSettingsOpen(false)} />
+        </Modal>
+      )}
+      <GameEndModal
+        isOpen={endModalOpen}
+        onClose={() => setEndModalOpen(false)}
+        stats={{
+          score: foundWords.length,
+          total: placedWords.length,
+          time: elapsedTime,
+        }}
+        onNext={handleNext}
+        onReplay={handlePlayAgain}
+      />
+    </>
+  );
+}
 
-      <footer style={{ textAlign: "center", marginTop: 20, color: "#6b7280" }}>
-        Made with ❤️ — Word Search (5×5)
-      </footer>
-    </div>
+export default function App() {
+  return (
+    <SettingsProvider>
+      <AppInner />
+    </SettingsProvider>
   );
 }
