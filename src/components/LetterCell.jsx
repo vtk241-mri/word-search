@@ -5,12 +5,9 @@ export default function LetterCell({
   isSelected = false,
   isFound = false,
 }) {
-  const base = "cell";
-  const className = `${base} ${
-    isFound ? "found" : isSelected ? "selected" : ""
-  }`;
+  const cls = `cell ${isFound ? "found" : isSelected ? "selected" : ""}`;
   return (
-    <div className={className} aria-pressed={isSelected || isFound}>
+    <div className={cls} aria-pressed={isSelected || isFound}>
       <span>{letter}</span>
     </div>
   );

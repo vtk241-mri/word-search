@@ -46,8 +46,6 @@
     grid-template-columns: 1fr;
   }
 }
-
-/* modal */
 .modal-overlay {
   position: fixed;
   inset: 0;

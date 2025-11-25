@@ -9,7 +9,6 @@ const DEFAULT_DIRECTIONS = [
   [-1, 1],
   [-1, -1],
 ];
-
 const rand = (n) => Math.floor(Math.random() * n);
 
 function createEmpty(n) {
@@ -64,10 +63,8 @@ function fillRandom(grid) {
 export function generateBoard(size = 5, words = [], options = {}) {
   const directions = options.directions ?? DEFAULT_DIRECTIONS;
   const maxWordLength = options.maxWordLength ?? size + 2;
-
   const filtered = words.filter((w) => w.length <= maxWordLength);
   const sorted = [...filtered].sort((a, b) => b.length - a.length);
-
   const grid = createEmpty(size);
   const placedWords = [];
   for (const w of sorted) {

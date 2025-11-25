@@ -31,9 +31,15 @@ body {
   border-radius: 10px;
   border: none;
   cursor: pointer;
+  background: transparent;
 }
 .btn.primary {
   background: linear-gradient(90deg, var(--accent-a), var(--accent-b));
   color: white;
   font-weight: 700;
+  border: none;
+}
+.small-muted {
+  font-size: 13px;
+  color: var(--muted);
 }

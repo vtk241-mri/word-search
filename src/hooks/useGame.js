@@ -10,7 +10,7 @@ export function useGame({ words = [], size = 5, timerSeconds = 0 } = {}) {
   const [isGameOver, setIsGameOver] = useState(false);
 
   const [remainingTime, setRemainingTime] = useState(timerSeconds);
-  const [timerRunning, setTimerRunning] = useState(timerSeconds > 0);
+  const [timerRunning, setTimerRunning] = useState(false);
 
   const optionsRef = useRef({
     words,
@@ -27,6 +27,43 @@ export function useGame({ words = [], size = 5, timerSeconds = 0 } = {}) {
       timerRef.current = null;
     }
   }, []);
+
+  const startTimer = useCallback(
+    (startSec) => {
+      clearTimer();
+      if (!startSec || startSec <= 0) {
+        setTimerRunning(false);
+        setRemainingTime(0);
+        return;
+      }
+      setRemainingTime(startSec);
+      setTimerRunning(true);
+      timerRef.current = setInterval(() => {
+        setRemainingTime((prev) => {
+          if (prev <= 1) {
+            clearTimer();
+            setTimerRunning(false);
+            setIsGameOver(true);
+            setEndedAt(Date.now());
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+    },
+    [clearTimer]
+  );
+
+  const pauseTimer = useCallback(() => {
+    clearTimer();
+    setTimerRunning(false);
+  }, [clearTimer]);
+
+  const resumeTimer = useCallback(() => {
+    if (remainingTime > 0) {
+      startTimer(remainingTime);
+    }
+  }, [remainingTime, startTimer]);
 
   const init = useCallback(
     (opts = {}) => {
@@ -70,10 +107,9 @@ export function useGame({ words = [], size = 5, timerSeconds = 0 } = {}) {
       setEndedAt(null);
       setIsGameOver(false);
 
-      setRemainingTime(t);
-      setTimerRunning(Boolean(t && t > 0));
+      startTimer(Number(t));
     },
-    [words, size, timerSeconds, clearTimer]
+    [words, size, timerSeconds, clearTimer, startTimer]
   );
 
   useEffect(() => {
@@ -83,38 +119,15 @@ export function useGame({ words = [], size = 5, timerSeconds = 0 } = {}) {
   }, [clearTimer]);
 
   useEffect(() => {
-    clearTimer();
-    if (!timerRunning || remainingTime <= 0) return;
-
-    timerRef.current = setInterval(() => {
-      setRemainingTime((prev) => {
-        if (prev <= 1) {
-          clearTimer();
-          setTimerRunning(false);
-          setIsGameOver(true);
-          setEndedAt(Date.now());
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
-
-    return () => {
-      clearTimer();
-    };
-  }, [timerRunning, clearTimer]);
-
-  useEffect(() => {
     if (
       placedWordsMeta.length > 0 &&
       foundWordsMeta.length === placedWordsMeta.length
     ) {
       setIsGameOver(true);
       setEndedAt(Date.now());
-      setTimerRunning(false);
-      clearTimer();
+      pauseTimer();
     }
-  }, [placedWordsMeta, foundWordsMeta, clearTimer]);
+  }, [placedWordsMeta, foundWordsMeta, pauseTimer]);
 
   const foundPositionsSet = useMemo(() => {
     const s = new Set();
@@ -159,9 +172,8 @@ export function useGame({ words = [], size = 5, timerSeconds = 0 } = {}) {
   }, [init, words, size, timerSeconds]);
 
   const stopTimer = useCallback(() => {
-    setTimerRunning(false);
-    clearTimer();
-  }, [clearTimer]);
+    pauseTimer();
+  }, [pauseTimer]);
 
   const elapsedTime = useMemo(() => {
     if (!startedAt) return 0;
@@ -186,5 +198,8 @@ export function useGame({ words = [], size = 5, timerSeconds = 0 } = {}) {
     resetGame,
     checkSelection,
     stopTimer,
+    resumeTimer,
+    pauseTimer,
+    startTimer,
   };
 }

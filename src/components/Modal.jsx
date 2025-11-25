@@ -8,7 +8,6 @@ export default function Modal({ children, onClose }) {
       ? document.getElementById("modal-root")
       : null;
   if (!el) return null;
-
   return ReactDOM.createPortal(
     <div className="modal-overlay" onMouseDown={onClose}>
       <div className="modal-card" onMouseDown={(e) => e.stopPropagation()}>

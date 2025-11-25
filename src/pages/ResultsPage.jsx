@@ -1,19 +1,23 @@
 import React from "react";
 
 export default function ResultsPage({
-  results = { score: 0, found: [], missed: [] },
+  results = { score: 0, found: [], missed: [], time: 0, history: [] },
   onPlayAgain,
 }) {
-  const { score, found, missed } = results;
+  const {
+    score = 0,
+    found = [],
+    missed = [],
+    time = 0,
+    history = [],
+  } = results;
   return (
     <main className="container">
       <div className="card" style={{ textAlign: "center" }}>
         <h2 style={{ marginTop: 0 }}>Результати</h2>
         <p className="small-muted">
-          Знайдено слів: <span className="kv">{found.length}</span> /{" "}
-          <span className="kv">{found.length + missed.length}</span>
+          Знайдено: <strong>{score}</strong>
         </p>
-
         <div
           style={{
             display: "flex",
@@ -27,23 +31,16 @@ export default function ResultsPage({
           </button>
         </div>
 
-        <div className="results-grid">
-          <div className="results-card">
-            <h4 style={{ marginTop: 0 }}>Знайдені</h4>
-            <ul>
-              {found.map((w) => (
-                <li key={w}>{w}</li>
-              ))}
-            </ul>
-          </div>
-          <div className="results-card">
-            <h4 style={{ marginTop: 0 }}>Пропущені</h4>
-            <ul>
-              {missed.map((w) => (
-                <li key={w}>{w}</li>
-              ))}
-            </ul>
-          </div>
+        <div style={{ marginTop: 12, textAlign: "left" }}>
+          <h4>Історія</h4>
+          <ul>
+            {history.map((h, i) => (
+              <li key={i}>
+                <strong>{new Date(h.date).toLocaleString()}</strong> — {h.score}
+                /{h.total} ({h.time}s)
+              </li>
+            ))}
+          </ul>
         </div>
       </div>
     </main>

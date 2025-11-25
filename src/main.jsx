@@ -1,10 +1,19 @@
-import { StrictMode } from "react";
+import React from "react";
 import { createRoot } from "react-dom/client";
-import App from "./App.jsx";
+import { BrowserRouter } from "react-router-dom";
+import App from "./App";
+import { SettingsProvider } from "./context/SettingsContext";
+import { UserProvider } from "./context/UserContext";
 import "./index.css";
 
 createRoot(document.getElementById("root")).render(
-  <StrictMode>
-    <App />
-  </StrictMode>
+  <React.StrictMode>
+    <BrowserRouter>
+      <UserProvider>
+        <SettingsProvider>
+          <App />
+        </SettingsProvider>
+      </UserProvider>
+    </BrowserRouter>
+  </React.StrictMode>
 );

@@ -22,6 +22,8 @@ export default function GamePage({
   onFinish,
   remainingTime = 0,
   timerRunning = false,
+  stopTimer,
+  resumeTimer,
 }) {
   const { selectedCells, selectCell, undo, resetSelection } =
     useWordSelection();
@@ -39,6 +41,9 @@ export default function GamePage({
   const progress = Math.round(
     (foundWords.length / Math.max(1, placedWords.length)) * 100
   );
+
+  const timerButtonLabel = timerRunning ? "Стоп" : "Продовжити";
+  const timerButtonDisabled = remainingTime <= 0;
 
   return (
     <main className="container">
@@ -79,11 +84,32 @@ export default function GamePage({
                   display: "flex",
                   flexDirection: "column",
                   alignItems: "flex-end",
+                  gap: 6,
                 }}
               >
-                <div className="small-muted">Таймер</div>
-                <div style={{ fontWeight: 700, minWidth: 56 }}>
-                  {timerRunning ? formatTime(remainingTime) : "—"}
+                <div className="small-muted" style={{ textAlign: "right" }}>
+                  Таймер
+                </div>
+                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <div style={{ fontWeight: 700, minWidth: 56 }}>
+                    {formatTime(remainingTime)}
+                  </div>
+                  <button
+                    className="btn"
+                    onClick={() => {
+                      if (timerRunning) {
+                        stopTimer && stopTimer();
+                      } else {
+                        resumeTimer && resumeTimer();
+                      }
+                    }}
+                    disabled={timerButtonDisabled}
+                    title={
+                      timerRunning ? "Зупинити таймер" : "Продовжити таймер"
+                    }
+                  >
+                    {timerButtonLabel}
+                  </button>
                 </div>
               </div>
             </div>
@@ -105,7 +131,7 @@ export default function GamePage({
               className="btn"
               disabled={!selectedCells.length}
             >
-              Undo
+              Відмінити
             </button>
             <button
               onClick={resetSelection}
@@ -113,9 +139,6 @@ export default function GamePage({
               disabled={!selectedCells.length}
             >
               Очистити
-            </button>
-            <button onClick={onCheck} className="btn">
-              Submit
             </button>
           </div>
         </div>

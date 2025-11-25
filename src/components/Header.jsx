@@ -1,6 +1,24 @@
 import React from "react";
+import { NavLink, useNavigate } from "react-router-dom";
+import { useUser } from "../context/UserContext";
 
-export default function Header({ onNavigate, page, onOpenSettings }) {
+function makeId() {
+  if (typeof crypto !== "undefined" && crypto.randomUUID)
+    return crypto.randomUUID();
+  return "u" + Date.now().toString(36);
+}
+
+export default function Header() {
+  const navigate = useNavigate();
+  const { user, setUser, clearUser } = useUser();
+
+  const quickStart = () => {
+    const id = makeId();
+    const newUser = { id, name: `Player_${id.slice(0, 6)}` };
+    setUser(newUser);
+    navigate(`/game/${id}`);
+  };
+
   return (
     <header className="header container">
       <div className="brand">
@@ -14,30 +32,40 @@ export default function Header({ onNavigate, page, onOpenSettings }) {
       </div>
 
       <nav className="nav">
-        <button
-          className={`btn ${page === "start" ? "active" : ""}`}
-          onClick={() => onNavigate("start")}
-        >
-          Старт
-        </button>
-        <button
-          className={`btn ${page === "game" ? "active" : ""}`}
-          onClick={() => onNavigate("game")}
-        >
-          Гра
-        </button>
-        <button
-          className={`btn ${page === "results" ? "active" : ""}`}
-          onClick={() => onNavigate("results")}
-        >
-          Результати
-        </button>
-        <button className="btn" onClick={onOpenSettings}>
-          Налаштування
-        </button>
-        <button className="btn primary" onClick={() => onNavigate("start")}>
-          Нова гра
-        </button>
+        <NavLink to="/" className="btn">
+          Головна
+        </NavLink>
+        {user ? (
+          <>
+            <NavLink to={`/game/${user.id}`} className="btn">
+              Гра
+            </NavLink>
+            <NavLink to={`/results/${user.id}`} className="btn">
+              Результати
+            </NavLink>
+            <button className="btn" onClick={() => navigate("/settings")}>
+              Налаштування
+            </button>
+            <button
+              className="btn"
+              onClick={() => {
+                clearUser();
+                navigate("/");
+              }}
+            >
+              Вийти
+            </button>
+          </>
+        ) : (
+          <>
+            <button className="btn" onClick={() => navigate("/")}>
+              Почати
+            </button>
+            <button className="btn" onClick={quickStart}>
+              Швидкий старт
+            </button>
+          </>
+        )}
       </nav>
     </header>
   );

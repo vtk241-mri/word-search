@@ -9,7 +9,7 @@ const schema = yup.object({
   boardSize: yup.number().min(3).max(8).required(),
   wordsCount: yup.number().min(1).max(12).required(),
   timerSeconds: yup.number().min(0).max(3600).required(),
-  speed: yup.string().oneOf(["slow", "normal", "fast"]).required(),
+  generatedWords: yup.boolean(),
 });
 
 export default function SettingsForm({ onClose }) {
@@ -23,8 +23,15 @@ export default function SettingsForm({ onClose }) {
     defaultValues: settings,
   });
 
-  function onSubmit(data) {
-    setSettings(data);
+  function onSubmit(raw) {
+    const payload = {
+      difficulty: raw.difficulty,
+      boardSize: Number(raw.boardSize),
+      wordsCount: Number(raw.wordsCount),
+      timerSeconds: Number(raw.timerSeconds),
+      generatedWords: Boolean(raw.generatedWords),
+    };
+    setSettings(payload);
     if (onClose) onClose();
   }
 
@@ -55,7 +62,7 @@ export default function SettingsForm({ onClose }) {
       </label>
 
       <label className="form-row">
-        <div className="form-label">К-ть слів</div>
+        <div className="form-label">Кількість слів</div>
         <input
           type="number"
           {...register("wordsCount")}
@@ -67,7 +74,7 @@ export default function SettingsForm({ onClose }) {
       </label>
 
       <label className="form-row">
-        <div className="form-label">Таймер (секунд, 0 — без таймеру)</div>
+        <div className="form-label">Таймер (секунд, 0 — без таймера)</div>
         <input
           type="number"
           {...register("timerSeconds")}
@@ -78,14 +85,14 @@ export default function SettingsForm({ onClose }) {
         <div className="form-error">{errors.timerSeconds?.message}</div>
       </label>
 
-      <label className="form-row">
-        <div className="form-label">Швидкість</div>
-        <select {...register("speed")} className="form-input">
-          <option value="slow">Повільно</option>
-          <option value="normal">Нормально</option>
-          <option value="fast">Швидко</option>
-        </select>
-        <div className="form-error">{errors.speed?.message}</div>
+      <label
+        className="form-row"
+        style={{ flexDirection: "row", alignItems: "center", gap: 8 }}
+      >
+        <input type="checkbox" {...register("generatedWords")} />
+        <div className="form-label" style={{ margin: 0 }}>
+          Генерувати слова (замість словника)
+        </div>
       </label>
 
       <div

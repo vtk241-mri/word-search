@@ -7,7 +7,7 @@ const defaultSettings = {
   boardSize: 5,
   wordsCount: 4,
   timerSeconds: 0,
-  speed: "normal",
+  generatedWords: true,
 };
 
 const SettingsContext = React.createContext({
@@ -29,13 +29,17 @@ export function SettingsProvider({ children }) {
   const setSettings = (next) => {
     setSettingsState((prev) => {
       const resolved = typeof next === "function" ? next(prev) : next;
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(resolved));
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(resolved));
+      } catch {}
       return resolved;
     });
   };
 
   const resetSettings = () => {
-    localStorage.removeItem(STORAGE_KEY);
+    try {
+      localStorage.removeItem(STORAGE_KEY);
+    } catch {}
     setSettingsState(defaultSettings);
   };
 

@@ -10,7 +10,6 @@ export default function GameEndModal({
 }) {
   if (!isOpen) return null;
   const { score = 0, total = 0, time = null } = stats;
-
   return (
     <Modal onClose={onClose}>
       <div style={{ padding: 20 }}>

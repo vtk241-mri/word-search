@@ -1,29 +1,27 @@
 import React from "react";
 
-export default function StartPage({ onStart }) {
+export default function StartPage({ onStart, name = "", setName = () => {} }) {
   return (
     <main className="container">
-      <div className="card start-wrap">
-        <div className="start-left">
-          <h2 className="h1">Ласкаво просимо в Word Search</h2>
-          <p className="lead">
-            У полі 5×5 заховано кілька слів. Клікай по літерках, формуй слово і
-            натискай «Почати гру».
+      <div
+        className="card start-wrap"
+        style={{ alignItems: "center", gap: 20 }}
+      >
+        <div style={{ flex: 1 }}>
+          <h2 style={{ margin: 0 }}>Ласкаво просимо в Word Search</h2>
+          <p className="small-muted">
+            У полі заховано кілька слів. Клікай літерки, формуй слово і натискай
+            «Почати гру».
           </p>
-
-          <div style={{ display: "flex", gap: 12 }}>
+          <div style={{ marginTop: 12, display: "flex", gap: 8 }}>
+            <input
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="Ім'я (необов'язково)"
+              className="form-input"
+            />
             <button onClick={onStart} className="btn primary">
               Почати гру
-            </button>
-            <button
-              onClick={() =>
-                alert(
-                  "Підказка:\nСлова можуть бути горизонтально, вертикально або по діагоналі."
-                )
-              }
-              className="btn"
-            >
-              Допомога
             </button>
           </div>
         </div>

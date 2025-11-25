@@ -12,6 +12,17 @@ export default function WordList({
 }) {
   return (
     <div className="card">
+      <div
+        style={{
+          marginBottom: 8,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+        }}
+      >
+        <h3 style={{ margin: 0 }}>Слова</h3>
+      </div>
+
       <div className="wordlist">
         {words.map((w) => {
           const found = foundWords.includes(w);
@@ -25,7 +36,7 @@ export default function WordList({
                 {found ? w : hidden ? maskWord(w) : w}
               </span>
               <span className="status">
-                {found ? "Знайдено" : hidden ? "" : "Чекає"}
+                {found ? "Знайдено" : hidden ? "" : "Не знайдено"}
               </span>
             </div>
           );
