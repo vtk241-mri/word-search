@@ -2,7 +2,8 @@ import React from "react";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
-import { useSettings } from "../context/SettingsContext";
+import { useAppDispatch, useAppSelector } from "../hooks/reduxHooks";
+import { setSettings, resetSettings } from "../store/settingsSlice";
 
 const schema = yup.object({
   difficulty: yup.string().oneOf(["easy", "medium", "hard"]).required(),
@@ -13,7 +14,9 @@ const schema = yup.object({
 });
 
 export default function SettingsForm({ onClose }) {
-  const { settings, setSettings, resetSettings } = useSettings();
+  const dispatch = useAppDispatch();
+  const settings = useAppSelector((s) => s.settings);
+
   const {
     register,
     handleSubmit,
@@ -31,7 +34,7 @@ export default function SettingsForm({ onClose }) {
       timerSeconds: Number(raw.timerSeconds),
       generatedWords: Boolean(raw.generatedWords),
     };
-    setSettings(payload);
+    dispatch(setSettings(payload));
     if (onClose) onClose();
   }
 
@@ -107,7 +110,7 @@ export default function SettingsForm({ onClose }) {
           type="button"
           className="btn"
           onClick={() => {
-            resetSettings();
+            dispatch(resetSettings());
             if (onClose) onClose();
           }}
         >

@@ -1,8 +1,9 @@
 import React from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import GamePage from "../pages/GamePage";
-import { useSettings } from "../context/SettingsContext";
-import { useUser } from "../context/UserContext";
+import { useAppDispatch, useAppSelector } from "../hooks/reduxHooks";
+import { setUser } from "../store/userSlice";
+import { addResult } from "../store/historySlice";
 import { WORD_POOL } from "../data/wordPool";
 import { deriveGameOptions } from "../utils/deriveGameOptions";
 import { useGame } from "../hooks/useGame";
@@ -48,34 +49,38 @@ function pickFromPool(pool, count, maxLen, difficulty) {
 export default function GameRoute() {
   const { userId } = useParams();
   const navigate = useNavigate();
-  const { settings } = useSettings();
-  const { user, setUser } = useUser();
+  const dispatch = useAppDispatch();
+  const user = useAppSelector((s) => s.user);
+  const settings = useAppSelector((s) => s.settings);
 
   React.useEffect(() => {
     if (!user || user.id !== userId) {
-      setUser({
-        id: userId,
-        name: user?.name || `Player_${userId?.slice(0, 6)}`,
-      });
+      const name =
+        user?.name ||
+        `Player_${
+          String(userId || "").slice(0, 6) ||
+          Date.now().toString(36).slice(0, 6)
+        }`;
+      dispatch(setUser({ id: userId, name }));
     }
-  }, [userId]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userId, dispatch]);
 
   const gameOpts = React.useMemo(() => deriveGameOptions(settings), [settings]);
 
   const words = React.useMemo(() => {
+    const count = Math.max(
+      1,
+      Number(settings.wordsCount || gameOpts.wordsCount || 4)
+    );
     if (settings.generatedWords) {
       const minLen = 3;
       const maxLen = Math.min(gameOpts.maxWordLength, gameOpts.size + 2);
-      return generatePseudoWords(
-        Math.max(1, settings.wordsCount),
-        minLen,
-        maxLen,
-        gameOpts.difficulty
-      );
+      return generatePseudoWords(count, minLen, maxLen, gameOpts.difficulty);
     } else {
       return pickFromPool(
         WORD_POOL,
-        Math.max(1, settings.wordsCount),
+        count,
         gameOpts.maxWordLength,
         gameOpts.difficulty
       );
@@ -86,6 +91,7 @@ export default function GameRoute() {
     gameOpts.maxWordLength,
     gameOpts.size,
     gameOpts.difficulty,
+    gameOpts.wordsCount,
   ]);
 
   const {
@@ -118,6 +124,7 @@ export default function GameRoute() {
       maxWordLength: gameOpts.maxWordLength,
       timerSeconds: gameOpts.timerSeconds,
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     init,
     words,
@@ -127,25 +134,36 @@ export default function GameRoute() {
     gameOpts.timerSeconds,
   ]);
 
+  const reportedRef = React.useRef(false);
+
   React.useEffect(() => {
-    if (isGameOver) {
-      const summary = {
-        userId,
-        date: new Date().toISOString(),
-        score: foundWords.length,
-        total: placedWords.length,
-        time: elapsedTime,
-      };
-      try {
-        const key = `wordsearch:history:${userId}`;
-        const raw = localStorage.getItem(key);
-        const arr = raw ? JSON.parse(raw) : [];
-        arr.unshift(summary);
-        localStorage.setItem(key, JSON.stringify(arr.slice(0, 50)));
-      } catch {}
-      navigate(`/results/${userId}`);
+    if (!isGameOver) {
+      reportedRef.current = false;
+      return;
     }
-  }, [isGameOver]);
+    if (reportedRef.current) return;
+    reportedRef.current = true;
+
+    const summary = {
+      userId,
+      date: new Date().toISOString(),
+      score: foundWords.length,
+      total: placedWords.length,
+      time: elapsedTime,
+    };
+
+    dispatch(addResult({ userId, result: summary }));
+    navigate(`/results/${userId}`);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    isGameOver,
+    foundWords.length,
+    placedWords.length,
+    elapsedTime,
+    dispatch,
+    navigate,
+    userId,
+  ]);
 
   return (
     <GamePage

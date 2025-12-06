@@ -1,6 +1,11 @@
 import React from "react";
 import { NavLink, useNavigate } from "react-router-dom";
-import { useUser } from "../context/UserContext";
+import { useAppSelector } from "../hooks/reduxHooks";
+import { useAppDispatch } from "../hooks/reduxHooks";
+import {
+  setUser as setUserAction,
+  clearUser as clearUserAction,
+} from "../store/userSlice";
 
 function makeId() {
   if (typeof crypto !== "undefined" && crypto.randomUUID)
@@ -10,12 +15,13 @@ function makeId() {
 
 export default function Header() {
   const navigate = useNavigate();
-  const { user, setUser, clearUser } = useUser();
+  const dispatch = useAppDispatch();
+  const user = useAppSelector((s) => s.user);
 
   const quickStart = () => {
     const id = makeId();
     const newUser = { id, name: `Player_${id.slice(0, 6)}` };
-    setUser(newUser);
+    dispatch(setUserAction(newUser));
     navigate(`/game/${id}`);
   };
 
@@ -49,7 +55,7 @@ export default function Header() {
             <button
               className="btn"
               onClick={() => {
-                clearUser();
+                dispatch(clearUserAction());
                 navigate("/");
               }}
             >

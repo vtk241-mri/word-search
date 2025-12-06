@@ -1,7 +1,8 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import StartPage from "../pages/StartPage";
-import { useUser } from "../context/UserContext";
+import { useAppDispatch } from "../hooks/reduxHooks";
+import { setUser } from "../store/userSlice";
 
 function makeId() {
   if (typeof crypto !== "undefined" && crypto.randomUUID)
@@ -11,13 +12,13 @@ function makeId() {
 
 export default function StartRoute() {
   const navigate = useNavigate();
-  const { setUser } = useUser();
+  const dispatch = useAppDispatch();
   const [name, setName] = React.useState("");
 
   const handleStart = () => {
     const id = makeId();
     const user = { id, name: name.trim() || `Player_${id.slice(0, 6)}` };
-    setUser(user);
+    dispatch(setUser(user));
     navigate(`/game/${id}`);
   };
 
