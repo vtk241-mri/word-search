@@ -2,6 +2,9 @@
 
 Word Search is an educational single-page game built with React, Redux Toolkit, React Router and Vite. The project was started in **2025** and now includes legal documentation, GDPR-oriented cookie consent, generated technical documentation and Storybook coverage for UI components.
 
+Deployed on Vercel
+https://word-search-alpha.vercel.app/
+
 ## Author
 
 - Rostyslav
