@@ -7,6 +7,7 @@ import StartRoute from "./routes/StartRoute";
 import GameRoute from "./routes/GameRoute";
 import ResultsRoute from "./routes/ResultsRoute";
 import SettingsRoute from "./routes/SettingsRoute";
+import ProjectDocumentPage from "./pages/ProjectDocumentPage";
 import { useAppSelector } from "./hooks/reduxHooks";
 
 export default function App() {
@@ -19,6 +20,10 @@ export default function App() {
         <Routes>
           <Route path="/" element={<StartRoute />} />
           <Route path="/settings" element={<SettingsRoute />} />
+          <Route
+            path="/documents/:documentId"
+            element={<ProjectDocumentPage />}
+          />
           <Route path="/game/:userId" element={<GameRoute />} />
           <Route path="/results/:userId" element={<ResultsRoute />} />
           <Route
