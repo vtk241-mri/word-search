@@ -19,13 +19,17 @@ const userSlice = createSlice({
       const u = action.payload;
       try {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(u));
-      } catch {}
+      } catch (error) {
+        console.warn("Failed to persist user.", error);
+      }
       return u;
     },
     clearUser: () => {
       try {
         localStorage.removeItem(STORAGE_KEY);
-      } catch {}
+      } catch (error) {
+        console.warn("Failed to clear saved user.", error);
+      }
       return null;
     },
   },

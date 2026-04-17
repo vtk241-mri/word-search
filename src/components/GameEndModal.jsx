@@ -9,11 +9,13 @@ export default function GameEndModal({
   onReplay,
 }) {
   if (!isOpen) return null;
+
   const { score = 0, total = 0, time = null } = stats;
+
   return (
     <Modal onClose={onClose}>
       <div style={{ padding: 20 }}>
-        <h3 style={{ marginTop: 0 }}>Гра завершена</h3>
+        <h3 style={{ marginTop: 0 }}>Гру завершено</h3>
         <p>
           Знайдено слів: <strong>{score}</strong> / {total}
         </p>
@@ -37,7 +39,7 @@ export default function GameEndModal({
             Повторити
           </button>
           <button className="btn primary" onClick={onNext}>
-            Наступний тур
+            Наступний раунд
           </button>
         </div>
       </div>

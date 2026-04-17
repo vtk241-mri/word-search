@@ -8,22 +8,29 @@ export default function StartPage({ onStart, name = "", setName = () => {} }) {
         style={{ alignItems: "center", gap: 20 }}
       >
         <div style={{ flex: 1 }}>
-          <h2 style={{ margin: 0 }}>Ласкаво просимо в Word Search</h2>
+          <h2 style={{ margin: 0 }}>Ласкаво просимо до Word Search</h2>
           <p className="small-muted">
-            У полі заховано кілька слів. Клікай літерки, формуй слово і натискай
-            «Почати гру».
+            У полі заховано кілька слів. Обирай літери по порядку, формуй слова
+            і починай гру, коли будеш готовий.
           </p>
-          <div style={{ marginTop: 12, display: "flex", gap: 8 }}>
+
+          <form
+            onSubmit={(event) => {
+              event.preventDefault();
+              onStart();
+            }}
+            style={{ marginTop: 12, display: "flex", gap: 8 }}
+          >
             <input
               value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="Ім'я (необов'язково)"
+              onChange={(event) => setName(event.target.value)}
+              placeholder="Ім'я гравця (необов'язково)"
               className="form-input"
             />
-            <button onClick={onStart} className="btn primary">
+            <button type="submit" className="btn primary">
               Почати гру
             </button>
-          </div>
+          </form>
         </div>
       </div>
     </main>

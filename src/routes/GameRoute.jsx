@@ -63,8 +63,7 @@ export default function GameRoute() {
         }`;
       dispatch(setUser({ id: userId, name }));
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [userId, dispatch]);
+  }, [user, userId, dispatch]);
 
   const gameOpts = React.useMemo(() => deriveGameOptions(settings), [settings]);
 
@@ -97,12 +96,9 @@ export default function GameRoute() {
   const {
     grid,
     placedWords,
-    placedWordsMeta,
     foundWords,
-    foundWordsMeta,
     foundPositionsSet,
     init,
-    resetGame,
     checkSelection,
     isGameOver,
     remainingTime,
@@ -124,7 +120,6 @@ export default function GameRoute() {
       maxWordLength: gameOpts.maxWordLength,
       timerSeconds: gameOpts.timerSeconds,
     });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     init,
     words,
@@ -150,15 +145,16 @@ export default function GameRoute() {
       score: foundWords.length,
       total: placedWords.length,
       time: elapsedTime,
+      found: foundWords,
+      missed: placedWords.filter((word) => !foundWords.includes(word)),
     };
 
     dispatch(addResult({ userId, result: summary }));
     navigate(`/results/${userId}`);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     isGameOver,
-    foundWords.length,
-    placedWords.length,
+    foundWords,
+    placedWords,
     elapsedTime,
     dispatch,
     navigate,
@@ -169,9 +165,7 @@ export default function GameRoute() {
     <GamePage
       grid={grid}
       placedWords={placedWords}
-      placedWordsMeta={placedWordsMeta}
       foundWords={foundWords}
-      foundWordsMeta={foundWordsMeta}
       foundPositionsSet={foundPositionsSet}
       checkSelection={checkSelection}
       remainingTime={remainingTime}

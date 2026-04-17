@@ -15,7 +15,7 @@ const schema = yup.object({
 
 export default function SettingsForm({ onClose }) {
   const dispatch = useAppDispatch();
-  const settings = useAppSelector((s) => s.settings);
+  const settings = useAppSelector((state) => state.settings);
 
   const {
     register,
@@ -34,8 +34,9 @@ export default function SettingsForm({ onClose }) {
       timerSeconds: Number(raw.timerSeconds),
       generatedWords: Boolean(raw.generatedWords),
     };
+
     dispatch(setSettings(payload));
-    if (onClose) onClose();
+    onClose?.();
   }
 
   return (
@@ -43,11 +44,11 @@ export default function SettingsForm({ onClose }) {
       <h3 style={{ marginTop: 0 }}>Налаштування гри</h3>
 
       <label className="form-row">
-        <div className="form-label">Рівень</div>
+        <div className="form-label">Складність</div>
         <select {...register("difficulty")} className="form-input">
-          <option value="easy">Легкий</option>
-          <option value="medium">Середній</option>
-          <option value="hard">Важкий</option>
+          <option value="easy">Легка</option>
+          <option value="medium">Середня</option>
+          <option value="hard">Важка</option>
         </select>
         <div className="form-error">{errors.difficulty?.message}</div>
       </label>
@@ -77,7 +78,7 @@ export default function SettingsForm({ onClose }) {
       </label>
 
       <label className="form-row">
-        <div className="form-label">Таймер (секунд, 0 — без таймера)</div>
+        <div className="form-label">Таймер (секунд, 0 - без таймера)</div>
         <input
           type="number"
           {...register("timerSeconds")}
@@ -94,7 +95,7 @@ export default function SettingsForm({ onClose }) {
       >
         <input type="checkbox" {...register("generatedWords")} />
         <div className="form-label" style={{ margin: 0 }}>
-          Генерувати слова (замість словника)
+          Генерувати слова замість словника
         </div>
       </label>
 
@@ -111,7 +112,7 @@ export default function SettingsForm({ onClose }) {
           className="btn"
           onClick={() => {
             dispatch(resetSettings());
-            if (onClose) onClose();
+            onClose?.();
           }}
         >
           Скинути

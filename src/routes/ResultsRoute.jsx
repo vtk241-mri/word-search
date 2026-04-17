@@ -19,8 +19,9 @@ export default function ResultsRoute() {
   const last = historyForUser[0] || { score: 0, total: 0, time: 0 };
   const results = {
     score: last.score,
-    found: [], // optional
-    missed: [],
+    total: last.total ?? 0,
+    found: last.found || [],
+    missed: last.missed || [],
     time: last.time,
     history: historyForUser,
   };

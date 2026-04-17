@@ -16,10 +16,8 @@ export default function GamePage({
   grid = [],
   placedWords = [],
   foundWords = [],
-  foundWordsMeta = [],
   foundPositionsSet = new Set(),
   checkSelection,
-  onFinish,
   remainingTime = 0,
   timerRunning = false,
   stopTimer,
@@ -29,19 +27,17 @@ export default function GamePage({
     useWordSelection();
   const [hideWords, setHideWords] = React.useState(false);
 
-  const onCellClick = (r, c, letter) => selectCell(r, c, letter);
+  const onCellClick = (row, col, letter) => selectCell(row, col, letter);
 
   const onCheck = () => {
     if (!selectedCells.length) return;
-    const matched = checkSelection(selectedCells);
+    checkSelection(selectedCells);
     resetSelection();
-    return matched;
   };
 
   const progress = Math.round(
     (foundWords.length / Math.max(1, placedWords.length)) * 100
   );
-
   const timerButtonLabel = timerRunning ? "Стоп" : "Продовжити";
   const timerButtonDisabled = remainingTime <= 0;
 
@@ -60,7 +56,8 @@ export default function GamePage({
             <div>
               <h2 style={{ margin: 0 }}>Знайди слова</h2>
               <p className="small-muted" style={{ margin: 0 }}>
-                Клікай по літерах, щоб будувати слово. Натисни «Перевірити».
+                Клікай по літерах у правильному порядку та перевіряй зібране
+                слово після вибору.
               </p>
             </div>
 
@@ -98,14 +95,16 @@ export default function GamePage({
                     className="btn"
                     onClick={() => {
                       if (timerRunning) {
-                        stopTimer && stopTimer();
+                        stopTimer?.();
                       } else {
-                        resumeTimer && resumeTimer();
+                        resumeTimer?.();
                       }
                     }}
                     disabled={timerButtonDisabled}
                     title={
-                      timerRunning ? "Зупинити таймер" : "Продовжити таймер"
+                      timerRunning
+                        ? "Зупинити таймер"
+                        : "Продовжити таймер"
                     }
                   >
                     {timerButtonLabel}
@@ -131,7 +130,7 @@ export default function GamePage({
               className="btn"
               disabled={!selectedCells.length}
             >
-              Відмінити
+              Скасувати крок
             </button>
             <button
               onClick={resetSelection}
@@ -153,16 +152,14 @@ export default function GamePage({
             }}
           >
             <h3 style={{ margin: 0 }}>Слова</h3>
-            <div>
-              <button
-                className="btn"
-                onClick={() => setHideWords((s) => !s)}
-                aria-pressed={hideWords}
-                title={hideWords ? "Показати слова" : "Приховати слова"}
-              >
-                {hideWords ? "Показати" : "Приховати"}
-              </button>
-            </div>
+            <button
+              className="btn"
+              onClick={() => setHideWords((state) => !state)}
+              aria-pressed={hideWords}
+              title={hideWords ? "Показати слова" : "Приховати слова"}
+            >
+              {hideWords ? "Показати" : "Приховати"}
+            </button>
           </div>
 
           <WordList

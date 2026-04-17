@@ -16,7 +16,9 @@ function loadFromStorage(userId) {
 function saveToStorage(userId, arr) {
   try {
     localStorage.setItem(`wordsearch:history:${userId}`, JSON.stringify(arr));
-  } catch {}
+  } catch (error) {
+    console.warn("Failed to persist game history.", error);
+  }
 }
 
 const historySlice = createSlice({
@@ -43,7 +45,9 @@ const historySlice = createSlice({
       state.byUserId[userId] = [];
       try {
         localStorage.removeItem(`wordsearch:history:${userId}`);
-      } catch {}
+      } catch (error) {
+        console.warn("Failed to clear game history.", error);
+      }
     },
   },
 });

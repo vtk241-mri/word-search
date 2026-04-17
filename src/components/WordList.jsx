@@ -24,19 +24,20 @@ export default function WordList({
       </div>
 
       <div className="wordlist">
-        {words.map((w) => {
-          const found = foundWords.includes(w);
+        {words.map((word) => {
+          const found = foundWords.includes(word);
+
           return (
             <div
-              key={w}
+              key={word}
               className={`word-item ${found ? "found" : ""}`}
               aria-hidden={false}
             >
               <span style={{ letterSpacing: 1 }}>
-                {found ? w : hidden ? maskWord(w) : w}
+                {found ? word : hidden ? maskWord(word) : word}
               </span>
               <span className="status">
-                {found ? "Знайдено" : hidden ? "" : "Не знайдено"}
+                {found ? "Знайдено" : hidden ? "" : "Ще не знайдено"}
               </span>
             </div>
           );

@@ -7,7 +7,6 @@ export function useGame({ words = [], size = 5, timerSeconds = 0 } = {}) {
   const [foundWordsMeta, setFoundWordsMeta] = useState([]);
   const [startedAt, setStartedAt] = useState(null);
   const [endedAt, setEndedAt] = useState(null);
-  const [isGameOver, setIsGameOver] = useState(false);
 
   const [remainingTime, setRemainingTime] = useState(timerSeconds);
   const [timerRunning, setTimerRunning] = useState(false);
@@ -43,8 +42,7 @@ export function useGame({ words = [], size = 5, timerSeconds = 0 } = {}) {
           if (prev <= 1) {
             clearTimer();
             setTimerRunning(false);
-            setIsGameOver(true);
-            setEndedAt(Date.now());
+            setEndedAt((current) => current ?? Date.now());
             return 0;
           }
           return prev - 1;
@@ -105,7 +103,6 @@ export function useGame({ words = [], size = 5, timerSeconds = 0 } = {}) {
       setFoundWordsMeta([]);
       setStartedAt(Date.now());
       setEndedAt(null);
-      setIsGameOver(false);
 
       startTimer(Number(t));
     },
@@ -117,17 +114,6 @@ export function useGame({ words = [], size = 5, timerSeconds = 0 } = {}) {
       clearTimer();
     };
   }, [clearTimer]);
-
-  useEffect(() => {
-    if (
-      placedWordsMeta.length > 0 &&
-      foundWordsMeta.length === placedWordsMeta.length
-    ) {
-      setIsGameOver(true);
-      setEndedAt(Date.now());
-      pauseTimer();
-    }
-  }, [placedWordsMeta, foundWordsMeta, pauseTimer]);
 
   const foundPositionsSet = useMemo(() => {
     const s = new Set();
@@ -152,12 +138,19 @@ export function useGame({ words = [], size = 5, timerSeconds = 0 } = {}) {
           !foundWordsMeta.find((f) => f.word === placed.word)
         ) {
           setFoundWordsMeta((prev) => [...prev, placed]);
+          if (placedWordsMeta.length > 0) {
+            const totalFound = foundWordsMeta.length + 1;
+            if (totalFound >= placedWordsMeta.length) {
+              pauseTimer();
+              setEndedAt((current) => current ?? Date.now());
+            }
+          }
           return placed.word;
         }
       }
       return null;
     },
-    [placedWordsMeta, foundWordsMeta]
+    [placedWordsMeta, foundWordsMeta, pauseTimer]
   );
 
   const resetGame = useCallback(() => {
@@ -175,10 +168,11 @@ export function useGame({ words = [], size = 5, timerSeconds = 0 } = {}) {
     pauseTimer();
   }, [pauseTimer]);
 
+  const isGameOver = endedAt !== null;
+
   const elapsedTime = useMemo(() => {
-    if (!startedAt) return 0;
-    const end = endedAt ?? Date.now();
-    return Math.max(0, Math.round((end - startedAt) / 1000));
+    if (!startedAt || !endedAt) return 0;
+    return Math.max(0, Math.round((endedAt - startedAt) / 1000));
   }, [startedAt, endedAt]);
 
   return {

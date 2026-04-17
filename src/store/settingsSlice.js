@@ -27,13 +27,17 @@ const settingsSlice = createSlice({
       const next = { ...state, ...action.payload };
       try {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
-      } catch {}
+      } catch (error) {
+        console.warn("Failed to persist settings.", error);
+      }
       return next;
     },
     resetSettings: () => {
       try {
         localStorage.removeItem(STORAGE_KEY);
-      } catch {}
+      } catch (error) {
+        console.warn("Failed to clear saved settings.", error);
+      }
       return defaultSettings;
     },
   },

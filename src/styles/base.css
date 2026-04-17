@@ -29,9 +29,10 @@ body {
 .btn {
   padding: 8px 12px;
   border-radius: 10px;
-  border: none;
+  border: 1px solid rgba(15, 23, 42, 0.08);
   cursor: pointer;
-  background: transparent;
+  background: rgba(255, 255, 255, 0.8);
+  color: #0f172a;
 }
 .btn.primary {
   background: linear-gradient(90deg, var(--accent-a), var(--accent-b));
@@ -39,7 +40,23 @@ body {
   font-weight: 700;
   border: none;
 }
+.btn.subtle {
+  background: transparent;
+}
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
 .small-muted {
   font-size: 13px;
   color: var(--muted);
+}
+.code-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: #eef6ff;
+  font-size: 12px;
+  color: #0f172a;
 }

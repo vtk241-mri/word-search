@@ -1,14 +1,16 @@
 import React from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import Header from "./components/Header";
+import Footer from "./components/Footer";
+import CookieConsentBanner from "./components/CookieConsentBanner";
 import StartRoute from "./routes/StartRoute";
 import GameRoute from "./routes/GameRoute";
 import ResultsRoute from "./routes/ResultsRoute";
 import SettingsRoute from "./routes/SettingsRoute";
-import { useUser } from "./context/UserContext";
+import { useAppSelector } from "./hooks/reduxHooks";
 
 export default function App() {
-  const { user } = useUser();
+  const user = useAppSelector((state) => state.user);
 
   return (
     <>
@@ -25,6 +27,8 @@ export default function App() {
           />
         </Routes>
       </div>
+      <Footer />
+      <CookieConsentBanner />
     </>
   );
 }

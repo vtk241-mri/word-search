@@ -1,22 +1,23 @@
 import React from "react";
 import { NavLink, useNavigate } from "react-router-dom";
-import { useAppSelector } from "../hooks/reduxHooks";
-import { useAppDispatch } from "../hooks/reduxHooks";
+import { useAppDispatch, useAppSelector } from "../hooks/reduxHooks";
 import {
   setUser as setUserAction,
   clearUser as clearUserAction,
 } from "../store/userSlice";
 
 function makeId() {
-  if (typeof crypto !== "undefined" && crypto.randomUUID)
+  if (typeof crypto !== "undefined" && crypto.randomUUID) {
     return crypto.randomUUID();
+  }
+
   return "u" + Date.now().toString(36);
 }
 
 export default function Header() {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
-  const user = useAppSelector((s) => s.user);
+  const user = useAppSelector((state) => state.user);
 
   const quickStart = () => {
     const id = makeId();
@@ -32,7 +33,7 @@ export default function Header() {
         <div>
           <h1 style={{ margin: 0 }}>Word Search</h1>
           <p style={{ margin: 0, color: "var(--muted)", fontSize: 12 }}>
-            5×5 — знайди всі слова
+            Знайди всі слова на полі
           </p>
         </div>
       </div>
@@ -41,6 +42,7 @@ export default function Header() {
         <NavLink to="/" className="btn">
           Головна
         </NavLink>
+
         {user ? (
           <>
             <NavLink to={`/game/${user.id}`} className="btn">
